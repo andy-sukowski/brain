@@ -1,6 +1,9 @@
+/* See LICENSE file for copyright and license details. */
+
 #include <stdio.h>
 #include <stdlib.h>
 
+/* search for matching `[` command */
 void goto_open(char **codep)
 {
 	int search = 1;
@@ -19,6 +22,7 @@ void goto_open(char **codep)
 	}
 }
 
+/* search for matching `]` command */
 void goto_close(char **codep)
 {
 	int search = 1;
@@ -37,6 +41,7 @@ void goto_close(char **codep)
 	}
 }
 
+/* execute given command */
 void exec_command(char **codep, char **memp)
 {
 	switch (**codep) {
@@ -71,6 +76,7 @@ void exec_command(char **codep, char **memp)
 	}
 }
 
+/* interpret brainfuck code */
 void interpret(FILE *fp)
 {
 	fseek(fp, 0, SEEK_END);
@@ -78,18 +84,19 @@ void interpret(FILE *fp)
 	fseek(fp, 0, SEEK_SET);
 
 	char code[fsize];
-	char *codep = &code[0];
+	char *codep = code;
 	fread(code, 1, fsize, fp);
 
 	char mem[30000] = {0};
-	char *memp = &mem[0];
+	char *memp = mem;
 
-	while (*codep != '\0') {
+	while (codep < code + fsize) {
 		exec_command(&codep, &memp);
 		++codep;
 	}
 }
 
+/* handle command-line arguments and open file */
 int main(int argc, char *argv[])
 {
 	if (argc != 2) {
@@ -100,7 +107,7 @@ int main(int argc, char *argv[])
 	FILE *fp = fopen(argv[1], "r");
 	if (!fp) {
 		fprintf(stderr, "Error: failed to open file '%s'\n", argv[1]);
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	interpret(fp);
